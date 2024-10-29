@@ -1,7 +1,7 @@
 <?php
 $this->db->select("ID_TICKET, PROBLEM, PHONE, TECHNICIAN, STATUS, CATEGORY, NOTE, 
                    TO_CHAR(TICKET_DATE, 'DD Mon YYYY HH24:MI') AS TICKET_DATE, 
-                   TO_CHAR(COMPLETED_DATE, 'DD Mon YYYY HH24:MI') AS COMPLETED_DATE");
+                   TO_CHAR(COMPLETED_DATE, 'DD Mon YYYY HH24:MI') AS COMPLETED_DATE, ATTACHMENT");
 $this->db->from('M_TICKET');
 $this->db->order_by('ID_TICKET');
 $query = $this->db->get();
@@ -132,39 +132,42 @@ if ($query->num_rows() > 0) {
                             </a>
                         </div>
                         <!-- parent pages-->
-                        <div class="nav-item-wrapper">
-                            <a class="nav-link dropdown-indicator label-1" href="#nv-project-management" role="button"
-                                data-bs-toggle="collapse" aria-expanded="false" aria-controls="nv-project-management">
-                                <div class="d-flex align-items-center">
-                                    <span class="nav-link-icon">
-                                        <span class="fa-solid fa-ticket"></span>
-                                    </span>
-                                    <span class="nav-link-text">My Tickets</span>
-                                    <div class="dropdown-indicator-icon ps-3">
-                                        <span class="fas fa-caret-right"></span>
+                        <?php if ($this->session->userdata('role') != 'Admin'): ?>
+                            <!-- parent pages-->
+                            <div class="nav-item-wrapper">
+                                <a class="nav-link dropdown-indicator label-1" href="#nv-project-management" role="button"
+                                    data-bs-toggle="collapse" aria-expanded="false" aria-controls="nv-project-management">
+                                    <div class="d-flex align-items-center">
+                                        <span class="nav-link-icon">
+                                            <span class="fa-solid fa-ticket"></span>
+                                        </span>
+                                        <span class="nav-link-text">My Tickets</span>
+                                        <div class="dropdown-indicator-icon ps-3">
+                                            <span class="fas fa-caret-right"></span>
+                                        </div>
                                     </div>
+                                </a>
+                                <div class="parent-wrapper label-1">
+                                    <ul class="nav collapse parent" data-bs-parent="#navbarVerticalCollapse"
+                                        id="nv-project-management">
+                                        <li class="nav-item"><a class="nav-link"
+                                                href="<?= base_url() ?>index.php/welcome/finished" data-bs-toggle=""
+                                                aria-expanded="false">
+                                                <div class="d-flex align-items-center"><span
+                                                        class="nav-link-text">Finished</span></div>
+                                            </a><!-- more inner pages-->
+                                        </li>
+                                        <li class="nav-item"><a class="nav-link"
+                                                href="<?= base_url() ?>index.php/welcome/unfinished" data-bs-toggle=""
+                                                aria-expanded="false">
+                                                <div class="d-flex align-items-center"><span
+                                                        class="nav-link-text">Unfinished</span></div>
+                                            </a><!-- more inner pages-->
+                                        </li>
+                                    </ul>
                                 </div>
-                            </a>
-                            <div class="parent-wrapper label-1">
-                                <ul class="nav collapse parent" data-bs-parent="#navbarVerticalCollapse"
-                                    id="nv-project-management">
-                                    <li class="nav-item"><a class="nav-link"
-                                            href="<?= base_url() ?>index.php/welcome/finished" data-bs-toggle=""
-                                            aria-expanded="false">
-                                            <div class="d-flex align-items-center"><span
-                                                    class="nav-link-text">Finished</span></div>
-                                        </a><!-- more inner pages-->
-                                    </li>
-                                    <li class="nav-item"><a class="nav-link"
-                                            href="<?= base_url() ?>index.php/welcome/unfinished" data-bs-toggle=""
-                                            aria-expanded="false">
-                                            <div class="d-flex align-items-center"><span
-                                                    class="nav-link-text">Unfinished</span></div>
-                                        </a><!-- more inner pages-->
-                                    </li>
-                                </ul>
                             </div>
-                        </div>
+                        <?php endif; ?>
                     </li>
                     <li class="nav-item">
                         <!-- label-->
@@ -7403,7 +7406,13 @@ if ($query->num_rows() > 0) {
                                                     <span class="fas fa-ellipsis-h fs--2"></span>
                                                 </button>
                                                 <div class="dropdown-menu dropdown-menu-end py-2">
-                                                    <a class="dropdown-item" href="#!">Open Attachment</a>
+                                                    <?php if (!empty($row["ATTACHMENT"])) { ?>
+                                                        <a class="dropdown-item"
+                                                            href="<?php echo base_url('uploads/' . $row["ATTACHMENT"]); ?>"
+                                                            download>Download Attachment</a>
+                                                    <?php } else { ?>
+                                                        <a class="dropdown-item disabled" href="#">No Attachment</a>
+                                                    <?php } ?>
                                                 </div>
                                             </div>
                                         </td>

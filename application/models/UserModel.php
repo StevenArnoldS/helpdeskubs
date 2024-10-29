@@ -87,21 +87,6 @@ class UserModel extends CI_Model
         return $this->db->update('M_TICKET', $data);
     }
 
-    public function get_attachment_by_ticket($ticket_id)
-    {
-        // Ambil file attachment dari database
-        $this->db->select('ATTACHMENT');
-        $this->db->from('M_TICKET');
-        $this->db->where('ID_TICKET', $ticket_id);
-        $query = $this->db->get();
-
-        if ($query->num_rows() > 0) {
-            return $query->row_array();
-        } else {
-            return false;
-        }
-    }
-
     public function get_note_by_ticket($ticket_id)
     {
         $this->db->select('NOTE');

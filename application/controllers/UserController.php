@@ -330,41 +330,6 @@ class UserController extends CI_Controller
         }
     }
 
-    public function download_attachment()
-    {
-        $ticket_id = $this->input->post('ticket_id');
-
-        // Ambil data attachment dari database
-        $attachment = $this->UserModel->get_attachment_by_ticket($ticket_id);
-
-        if ($attachment) {
-            // Path ke file di direktori 'uploads'
-            $file_path = FCPATH . 'uploads/' . $attachment['ATTACHMENT'];
-
-            if (file_exists($file_path)) {
-                // Ambil tipe file
-                $file_type = mime_content_type($file_path);
-
-                // Mengirim header untuk mendownload file
-                header('Content-Description: File Transfer');
-                header('Content-Type: ' . $file_type);
-                header('Content-Disposition: attachment; filename="' . basename($file_path) . '"');
-                header('Expires: 0');
-                header('Cache-Control: must-revalidate');
-                header('Pragma: public');
-                header('Content-Length: ' . filesize($file_path));
-
-                // Membaca file dan mengirimkannya ke output
-                readfile($file_path);
-                exit;
-            } else {
-                echo json_encode(['success' => false, 'message' => 'File not found.']);
-            }
-        } else {
-            echo json_encode(['success' => false, 'message' => 'Attachment not found.']);
-        }
-    }
-
     public function get_note()
     {
         $ticket_id = $this->input->post('ticket_id');
@@ -622,17 +587,63 @@ class UserController extends CI_Controller
         }
     }
 
-    public function get_ticket_status() {
+    public function get_ticket_status()
+    {
         $this->load->model('UserModel');
         $status = $this->UserModel->get_ticket_status();
         echo json_encode($status);
     }
 
-    public function get_ticket_category() {
+    public function get_ticket_category()
+    {
         $this->load->model('UserModel');
         $category = $this->UserModel->get_ticket_category();
         echo json_encode($category);
     }
-    
+
+    public function filter_schedule()
+    {
+        $date_range = $this->input->post('date_range');
+
+        if ($date_range) {
+            // Memisahkan date range menjadi start dan end date
+            $dates = explode(" to ", $date_range);
+            $start_date = date('d-M-Y', strtotime(str_replace('/', '-', $dates[0])));
+            $end_date = date('d-M-Y', strtotime(str_replace('/', '-', $dates[1])));
+
+            // Query filter data
+            $this->db->select("ID_SCHEDULE, TO_CHAR(SCHEDULE_DATE, 'DD Mon YYYY') AS SCHEDULE_DATE, ID_USER");
+            $this->db->from('M_SCHEDULE');
+            $this->db->where("SCHEDULE_DATE BETWEEN TO_DATE('$start_date', 'DD-MON-YYYY') AND TO_DATE('$end_date', 'DD-MON-YYYY')", NULL, FALSE);
+
+            $query = $this->db->get();
+
+            // Jika ada data yang ditemukan
+            if ($query->num_rows() > 0) {
+                $result = $query->result_array();
+                foreach ($result as $row) {
+                    echo "<tr>
+                <td class='align-middle text-center ps-3 id_schedule'>{$row['ID_SCHEDULE']}</td>
+                <td class='align-middle date'>{$row['SCHEDULE_DATE']}</td>
+                <td class='align-middle text-center technician_name'>{$row['ID_USER']}</td>
+                <td class='align-middle text-center white-space-nowrap text-end pe-0'>
+                    <div class='font-sans-serif btn-reveal-trigger position-static'>
+                        <button class='btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs--2'
+                                type='button' data-bs-toggle='dropdown' data-boundary='window'
+                                aria-haspopup='true' aria-expanded='false' data-bs-reference='parent'>
+                            <span class='fas fa-ellipsis-h fs--2'></span>
+                        </button>
+                        <div class='dropdown-menu dropdown-menu-end py-2'>
+                            <a class='dropdown-item' href='#!'>Open Attachment</a>
+                        </div>
+                    </div>
+                </td>
+            </tr>";
+                }
+            } else {
+                echo "<tr><td colspan='4' class='text-center'>No data available for the selected date range.</td></tr>";
+            }
+        }
+    }
 }
 ?>

@@ -123,6 +123,7 @@ $rand_id = 'S' . $current_year . '00' . $formatted_data;
 
             transition: background-color 0.3s ease, color 0.3s ease;
         }
+
         .datepicker .dow {
             font-weight: 500;
             display: inline-block;
@@ -7597,6 +7598,35 @@ $rand_id = 'S' . $current_year . '00' . $formatted_data;
                         }
                     });
                 });
+
+                flatpickr("#timepicker2", {
+                    mode: "range",
+                    dateFormat: "d/m/Y",  // Pastikan format sesuai dengan yang diparsing oleh PHP (DD/MM/YYYY)
+                    disableMobile: true,
+                    onChange: function (selectedDates, dateStr, instance) {
+                        if (selectedDates.length === 2) {
+                            // Tambahkan " to " di antara dua tanggal jika `explode(" to ", ...)` tetap digunakan di PHP
+                            const dateRange = selectedDates.map(date => flatpickr.formatDate(date, "d/m/Y")).join(" to ");
+                            filterSchedules(dateRange);
+                        }
+                    }
+                });
+
+                // Fungsi untuk mengirimkan request menggunakan AJAX
+                function filterSchedules(dateRange) {
+                    $.ajax({
+                        url: '<?= base_url('index.php/UserController/filter_schedule'); ?>',
+                        type: 'POST',
+                        data: { date_range: dateRange },
+                        success: function (response) {
+                            // Tampilkan hasil ke dalam div dengan id 'ticket_results'
+                            $('tbody.list').html(response);
+                        },
+                        error: function (xhr, status, error) {
+                            console.error("Error: " + error);
+                        }
+                    });
+                }
             });
 
         </script>
