@@ -313,7 +313,7 @@ $rand_id = 'S' . $current_year . '00' . $formatted_data;
                         role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-haspopup="true"
                         aria-expanded="false">
                         <div class="avatar avatar-l ">
-                            <img class="rounded-circle " src="<?= base_url('assets/'); ?>img/team/40x40/57.webp" alt="">
+                            <img class="rounded-circle " src="<?= base_url('assets/'); ?>images/profile.jpg" alt="">
                         </div>
                     </a>
                     <div class="dropdown-menu dropdown-menu-end navbar-dropdown-caret py-0 dropdown-profile shadow border border-300"
@@ -323,7 +323,7 @@ $rand_id = 'S' . $current_year . '00' . $formatted_data;
                                 <div class="text-center pt-4 pb-3">
                                     <div class="avatar avatar-xl ">
                                         <img class="rounded-circle "
-                                            src="<?= base_url('assets/'); ?>img/team/72x72/57.webp" alt="">
+                                            src="<?= base_url('assets/'); ?>images/profile.jpg" alt="">
                                     </div>
                                     <h6 class="mt-2 text-black">Jerry Seinfield</h6>
                                 </div>

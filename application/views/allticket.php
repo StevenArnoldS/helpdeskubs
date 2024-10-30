@@ -8,6 +8,34 @@ $query = $this->db->get();
 if ($query->num_rows() > 0) {
     $result = $query->result_array();
 }
+// $nik = $this->session->userdata('user_id');
+// if ($nik) {
+//     // Get the ID_USER based on NIK from M_USER table
+//     $this->db->select('ID_USER');
+//     $this->db->from('M_USER');
+//     $this->db->where('NIK', $nik);
+//     $user_query = $this->db->get();
+//     $user_result = $user_query->row_array();
+
+//     if (!empty($user_result)) {
+//         $id_user = $user_result['ID_USER'];
+
+//         // Fetch tickets for this user with status 'unfinished' and 'on-progress'
+//         $this->db->select("ID_TICKET, PROBLEM, PHONE, TO_CHAR(TICKET_DATE, 'DD Mon YYYY HH24:MI') AS TICKET_DATE, CATEGORY, STATUS");
+//         $this->db->from('M_TICKET');
+//         $this->db->where('TECHNICIAN', $id_user); // Filter by ID_USER
+//         $this->db->where_in('STATUS', ['unfinished', 'on-progress']); // Filter by multiple statuses
+//         $this->db->order_by('ID_TICKET');
+//         $query = $this->db->get();
+//         $result = $query->result_array();
+
+//         // Fetch categories for the dropdown
+        $category_query = $this->db->order_by('ID')->get('M_CATEGORY');
+        $categories = $category_query->result_array();
+//     }
+// }
+$category_query = $this->db->query("SELECT * FROM M_CATEGORY");
+$categories = $category_query->result_array();
 ?>
 <!DOCTYPE html>
 <html lang="en-US" dir="ltr">
@@ -87,6 +115,70 @@ if ($query->num_rows() > 0) {
 
         .content {
             padding-bottom: 0 !important;
+        }
+ /* Styling container utama */
+ .filter-container {
+            width: 200px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: #f9f9f9;
+            font-family: Arial, sans-serif;
+            position: relative; /* Supaya konten bisa diatur posisi absolut */
+            cursor: pointer;
+        }
+
+        /* Styling untuk judul utama */
+        .filter-title {
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* Styling untuk konten dropdown */
+        .filter-content {
+            display: none; /* Awalnya disembunyikan */
+            position: absolute;
+            top: 100%; /* Posisi di bawah filter-container */
+            left: 0;
+            width: 100%;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1;
+        }
+
+        /* Styling untuk tab navigasi (Status dan Kategori) */
+        .filter-tabs {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .filter-tabs a {
+            text-decoration: none;
+            color: #0073aa;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .filter-tabs a:hover {
+            text-decoration: underline;
+        }
+
+        /* Styling untuk daftar checkbox */
+        .filter-options {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .filter-options li {
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .filter-options input[type="checkbox"] {
+            margin-right: 8px;
         }
     </style>
 </head>
@@ -235,8 +327,9 @@ if ($query->num_rows() > 0) {
                 <li class="nav-item dropdown"><a class="nav-link lh-1 pe-0" id="navbarDropdownUser" href="#!"
                         role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-haspopup="true"
                         aria-expanded="false">
+                        <!-- profile navbar -->
                         <div class="avatar avatar-l ">
-                            <img class="rounded-circle " src="<?= base_url('assets/'); ?>img/team/40x40/57.webp" alt="">
+                            <img class="rounded-circle " src="<?= base_url('assets/'); ?>images/profile.jpg" alt="">
                         </div>
                     </a>
                     <div class="dropdown-menu dropdown-menu-end navbar-dropdown-caret py-0 dropdown-profile shadow border border-300"
@@ -245,10 +338,11 @@ if ($query->num_rows() > 0) {
                             <div class="card-body p-0">
                                 <div class="text-center pt-4 pb-3">
                                     <div class="avatar avatar-xl ">
+                                        <!-- profile dropdown -->
                                         <img class="rounded-circle "
-                                            src="<?= base_url('assets/'); ?>img/team/72x72/57.webp" alt="">
+                                            src="<?= base_url('assets/'); ?>images/profile.jpg" alt="">
                                     </div>
-                                    <h6 class="mt-2 text-black">Jerry Seinfield</h6>
+                                    <h6 class="mt-2 text-black">Jerrys Seinfield</h6>
                                 </div>
                             </div>
                             <div class="p-3"> <a class="btn btn-phoenix-secondary d-flex flex-center w-100"
@@ -6135,8 +6229,9 @@ if ($query->num_rows() > 0) {
                                 <div class="card-body p-0">
                                     <div class="text-center pt-4 pb-3">
                                         <div class="avatar avatar-xl ">
+                                            <!-- bukan -->
                                             <img class="rounded-circle "
-                                                src="<?= base_url('assets/'); ?>img/team/72x72/57.webp" alt="">
+                                                src="<?= base_url('assets/'); ?>images/profile.jpg" alt="">
                                         </div>
                                         <h6 class="mt-2 text-black">Jerry Seinfield</h6>
                                     </div>
@@ -7332,6 +7427,31 @@ if ($query->num_rows() > 0) {
                             placeholder="d/m/y to d/m/y"
                             data-options='{"mode":"range","dateFormat":"d/m/y","disableMobile":true}' />
                     </div>
+                    <div class="scrollbar overflow-hidden-y">
+                        <div class="btn-group position-static" role="group">
+                            <!-- <div class="btn-group position-static text-nowrap"><button class="btn btn-phoenix-secondary px-7 flex-shrink-0" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"> Category<span class="fas fa-angle-down ms-2"></span></button>
+                            <ul class="dropdown-menu"> -->
+                            <select class="form-select position-static text-nowrap">
+                                <option value="" disabled selected>Category</option> <!-- Opsi default -->
+                                                <?php foreach ($categories as $category) { ?>
+                                                    <option value="Category">
+                                                        <?php echo $category['CATEGORY']; ?>
+                                                    </option>
+                                                <?php } ?>
+                                            </select>
+                            <!-- </div> -->
+                            <!-- <div class="btn-group position-static text-nowrap"><button class="btn btn-sm btn-phoenix-secondary px-7 flex-shrink-0" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"> Status<span class="fas fa-angle-down ms-2"></span></button>
+                            <ul class="dropdown-menu"> -->
+                                <select class="form-select  position-static text-nowrap">
+                                    <option value="" disabled selected>Status</option>
+                                        <option><a class="dropdown-item" href="#">Finished</a></option>
+                                        <option><a class="dropdown-item" href="#">Waiting</a></option>
+                                        <option><a class="dropdown-item" href="#">On-Progress</a></option>
+                                </select>
+                            <!-- </ul> -->
+                            <!-- </div> -->
+                        </div>
+                    </div>
                     <!-- Search Box -->
                     <div class="search-box">
                         <form class="position-relative" data-bs-toggle="search" data-bs-display="static">
@@ -7494,6 +7614,52 @@ if ($query->num_rows() > 0) {
                 }
             });
 
+       // Data untuk Status dan Kategori
+    const statusOptions = ["Published", "Draft", "Pending", "Archived"];
+    const categoryOptions = ["Uncategorized", "Standard", "Link", "Image", "Video", "Audio", "Quote"];
+
+    // Fungsi untuk toggle konten filter
+    function toggleFilter(event) {
+        event.stopPropagation();
+        const filterContent = document.getElementById("filterContent");
+        filterContent.style.display = filterContent.style.display === "none" ? "block" : "none";
+    }
+
+    // Fungsi untuk menampilkan Status
+    function showStatus(event) {
+        event.stopPropagation(); // Mencegah toggle saat klik tab
+        const filterOptions = document.getElementById("filterOptions");
+        filterOptions.innerHTML = "";
+        statusOptions.forEach(option => {
+            const li = document.createElement("li");
+            li.innerHTML = `<input type="checkbox"> ${option}`;
+            filterOptions.appendChild(li);
+        });
+    }
+
+    // Fungsi untuk menampilkan Kategori
+    function showCategory(event) {
+        event.stopPropagation(); // Mencegah toggle saat klik tab
+        const filterOptions = document.getElementById("filterOptions");
+        filterOptions.innerHTML = "";
+        categoryOptions.forEach(option => {
+            const li = document.createElement("li");
+            li.innerHTML = `<input type="checkbox"> ${option}`;
+            filterOptions.appendChild(li);
+        });
+    }
+
+    // Tampilkan opsi Status secara default saat kotak dibuka pertama kali
+    document.getElementById("filterContent").style.display = "none"; // Konten tersembunyi pada awalnya
+
+    // Menutup dropdown jika pengguna mengklik di luar area filter
+    document.addEventListener("click", (event) => {
+        const filterContent = document.getElementById("filterContent");
+        const filterContainer = document.querySelector(".filter-container");
+        if (!filterContainer.contains(event.target)) {
+            filterContent.style.display = "none";
+        }
+    });
         </script>
 </body>
 
