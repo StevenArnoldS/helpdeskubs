@@ -83,6 +83,7 @@ $categories = $category_query->result_array();
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         var phoenixIsRTL = window.config.config.phoenixIsRTL;
         if (phoenixIsRTL) {
@@ -250,7 +251,7 @@ $categories = $category_query->result_array();
                     <div class="d-flex align-items-center">
                         <div class="d-flex align-items-center"><img src="<?= base_url('assets/'); ?>img/icons/logo.png"
                                 alt="phoenix" width="27">
-                            <p class="logo-text ms-2 d-none d-sm-block">phoenix</p>
+                            <p class="logo-text ms-2 d-none d-sm-block">UBS</p>
                         </div>
                     </div>
                 </a>
@@ -7538,11 +7539,30 @@ $categories = $category_query->result_array();
                             status: 'on-progress' // Status menjadi "on-progress"
                         },
                         success: function (response) {
-                            alert('Ticket status updated to on-progress');
-                            location.reload(); // Refresh halaman
+                            Swal.fire({
+                                    icon: 'success',
+                                    title: 'Ticket status successfully updated ',
+                                    text: 'Ticket status updated to on-progress',
+                                    allowOutsideClick: false,
+                                    confirmButtonText: 'OK'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        // Redirect to base URL when "OK" is clicked
+                                        location.reload(); // Reload halaman
+                                    }
+                                });
+                            // alert('Ticket status updated to on-progress');
+                            // location.reload(); // Refresh halaman
                         },
                         error: function (xhr, status, error) {
-                            console.error(xhr.responseText);
+                            Swal.fire({
+                                    icon: 'error',
+                                    title: 'Ticket status failed to updated ',
+                                    text: 'Ticket status has not changed',
+                                    allowOutsideClick: false,
+                                    confirmButtonText: 'OK'
+                                })
+                            // console.error(xhr.responseText);
                         }
                     });
                 });
@@ -7564,14 +7584,35 @@ $categories = $category_query->result_array();
                         success: function (response) {
                             var res = JSON.parse(response);
                             if (res.success) {
-                                alert(res.message); // Tampilkan pesan sukses
+                                // alert(res.message); // Tampilkan pesan sukses
                                 $('#uploadModal').modal('hide'); // Tutup modal
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Attachment successfully uploaded ',
+                                    text: 'Your attachment has been successfully uploaded',
+                                    allowOutsideClick: false,
+                                    confirmButtonText: 'OK'
+                                })
                             } else {
-                                alert(res.message); // Tampilkan pesan error dari server
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Attachment failed to upload',
+                                    text: 'All fields are required',
+                                    allowOutsideClick: false,
+                                    confirmButtonText: 'OK'
+                                })
+                                // alert(res.message); // Tampilkan pesan error dari server
                             }
                         },
                         error: function () {
-                            alert('An error occurred while uploading the file.');
+                            Swal.fire({
+                                    icon: 'error',
+                                    title: 'Attachment failed to upload',
+                                    text: 'An error occurred while uploading the file',
+                                    allowOutsideClick: false,
+                                    confirmButtonText: 'OK'
+                                })
+                            // alert('An error occurred while uploading the file.');
                         }
                     });
                 });
@@ -7615,14 +7656,36 @@ $categories = $category_query->result_array();
                             var res = JSON.parse(response);
 
                             if (res.success) {
-                                alert(res.message); // Tampilkan pesan sukses
-                                $('#note').modal('hide'); // Tutup modal setelah sukses menyimpan
+                                // alert(res.message); // Tampilkan pesan sukses
+                                 // Tutup modal setelah sukses menyimpan
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Note successfully uploaded ',
+                                    text: 'Your note has been successfully uploaded',
+                                    allowOutsideClick: false,
+                                    confirmButtonText: 'OK'
+                                })
+                                $('#note').modal('hide');
                             } else {
-                                alert(res.message); // Tampilkan pesan error dari server
+                                // alert(res.message); // Tampilkan pesan error dari server
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Note failed to saved',
+                                    text: 'All fields are required',
+                                    allowOutsideClick: false,
+                                    confirmButtonText: 'OK'
+                                })
                             }
                         },
                         error: function () {
-                            alert('An error occurred while saving the note.');
+                            // alert('An error occurred while saving the note.');
+                            Swal.fire({
+                                    icon: 'error',
+                                    title: 'Attachment failed to upload',
+                                    text: 'An error occurred while saving the note',
+                                    allowOutsideClick: false,
+                                    confirmButtonText: 'OK'
+                                })
                         }
                     });
                 });
@@ -7640,8 +7703,20 @@ $categories = $category_query->result_array();
                             status: 'finished'
                         },
                         success: function (response) {
-                            alert('Ticket updated successfully');
-                            location.reload(); // Untuk merefresh halaman jika diperlukan
+                            Swal.fire({
+                                    icon: 'success',
+                                    title: 'Ticket updated successfully',
+                                    text: 'Ticket has been resolved',
+                                    allowOutsideClick: false,
+                                    confirmButtonText: 'OK'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        // Redirect to base URL when "OK" is clicked
+                                        location.reload(); // Reload halaman
+                                    }
+                                });
+                            // alert('Ticket updated successfully');
+                            // location.reload(); // Untuk merefresh halaman jika diperlukan
                         },
                         error: function (xhr, status, error) {
                             console.error(xhr.responseText);
