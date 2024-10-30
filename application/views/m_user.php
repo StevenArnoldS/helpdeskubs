@@ -65,6 +65,7 @@ $rand_id = 'U' . $current_year . '00' . $formatted_data;
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         var phoenixIsRTL = window.config.config.phoenixIsRTL;
         if (phoenixIsRTL) {
@@ -233,7 +234,7 @@ $rand_id = 'U' . $current_year . '00' . $formatted_data;
                     <div class="d-flex align-items-center">
                         <div class="d-flex align-items-center"><img src="<?= base_url('assets/'); ?>img/icons/logo.png"
                                 alt="phoenix" width="27">
-                            <p class="logo-text ms-2 d-none d-sm-block">phoenix</p>
+                            <p class="logo-text ms-2 d-none d-sm-block">UBS</p>
                         </div>
                     </div>
                 </a>
@@ -7532,13 +7533,39 @@ $rand_id = 'U' . $current_year . '00' . $formatted_data;
                         success: function (response) {
                             if (response.status == 'success') {
                                 // Jika berhasil, update kolom role di tabel tanpa refresh halaman
-                                location.reload();
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Successfully Updated',
+                                    text: 'Role successfully changed',
+                                    allowOutsideClick: false,
+                                    confirmButtonText: 'OK'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        // Redirect to base URL when "OK" is clicked
+                                        location.reload(); // Reload halaman
+                                    }
+                                });
+                                // location.reload();
                             } else {
-                                alert(response.message);
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error updating role',
+                                    text: 'Role failed to change',
+                                    allowOutsideClick: false,
+                                    confirmButtonText: 'OK'
+                                })
+                                // alert(response.message);
                             }
                         },
                         error: function () {
-                            alert('Error updating role');
+                            Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error updating role',
+                                    text: 'Role failed to change',
+                                    allowOutsideClick: false,
+                                    confirmButtonText: 'OK'
+                                })
+                            // alert('Error updating role');
                         }
                     });
                 });
@@ -7551,7 +7578,14 @@ $rand_id = 'U' . $current_year . '00' . $formatted_data;
 
                     // Validasi sederhana di sisi client
                     if (addId === '' || nik === '' || username === '' || password === '') {
-                        alert('All fields are required');
+                        // alert('All fields are required');
+                        Swal.fire({
+                                icon: 'error',
+                                title: 'Incomplete Data',
+                                text: 'All fields are required',
+                                allowOutsideClick: false,
+                                confirmButtonText: 'OK'
+                            })
                         return; // Berhenti jika validasi gagal
                     }
 
@@ -7570,11 +7604,31 @@ $rand_id = 'U' . $current_year . '00' . $formatted_data;
                             if (response.status === 'success') {
                                 // Jika sukses
                                 $('#addModal').modal('hide'); // Tutup modal
-                                alert(response.message); // Pesan sukses
-                                location.reload(); // Reload halaman
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Complete Data',
+                                    text: 'all columns are filled',
+                                    allowOutsideClick: false,
+                                    confirmButtonText: 'OK'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        // Redirect to base URL when "OK" is clicked
+                                        location.reload(); // Reload halaman
+                                    }
+                                });
+                                // alert(response.message); // Pesan sukses
+                                
                             } else {
                                 // Jika gagal, tampilkan pesan error
-                                alert(response.message);
+                                $('#addModal').modal('hide'); // Tutup modal
+                                    Swal.fire({
+                                    icon: 'error',
+                                    title: 'NIK already exists',
+                                    text: 'Please use different NIK',
+                                    allowOutsideClick: false,
+                                    confirmButtonText: 'OK'
+                                })
+                                // alert(response.message);
                             }
                         },
                         error: function (xhr, status, error) {

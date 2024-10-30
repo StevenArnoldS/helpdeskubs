@@ -24,10 +24,10 @@ class UserModel extends CI_Model
         return $this->db->delete('M_CATEGORY', $data);
     }
 
-    public function edit($categoryId, $categoryName)
+    public function edit($categoryId, $data)
     {
         $this->db->where('ID', $categoryId);
-        return $this->db->update('M_CATEGORY', $categoryName);
+        return $this->db->update('M_CATEGORY', $data);
     }
 
     public function addUser($data)

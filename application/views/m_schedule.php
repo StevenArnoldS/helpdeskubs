@@ -70,6 +70,7 @@ $rand_id = 'S' . $current_year . '00' . $formatted_data;
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script
         src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
     <script>
@@ -302,7 +303,7 @@ $rand_id = 'S' . $current_year . '00' . $formatted_data;
                     <div class="d-flex align-items-center">
                         <div class="d-flex align-items-center"><img src="<?= base_url('assets/'); ?>img/icons/logo.png"
                                 alt="phoenix" width="27">
-                            <p class="logo-text ms-2 d-none d-sm-block">phoenix</p>
+                            <p class="logo-text ms-2 d-none d-sm-block">UBS</p>
                         </div>
                     </div>
                 </a>
@@ -7420,19 +7421,17 @@ $rand_id = 'S' . $current_year . '00' . $formatted_data;
                 </div>
 
                 <div class="table-responsive">
-                    <table class="table table-striped table-sm fs--1 mb-0" style="width: 100vw;">
+                <table class="table table-striped table-sm fs--1 mb-0" >
                         <thead>
                             <tr>
                                 <th class="sort border-top text-center ps-3" data-sort="id_schedule"
                                     style="min-width: 125px;">Id
                                     Schedule</th>
-                                <th class="sort border-top text-center" data-sort="date" style="min-width: 500px;">
+                                <th class="sort border-top text-center" data-sort="date" style="min-width: 200px;">
                                     Date</th>
                                 <th class="sort border-top text-center" data-sort="technician_name"
                                     style="min-width: 200px;">
                                     Technician Name</th>
-                                <th class="sort text-center align-middle pe-0 border-top" scope="col"
-                                    style="min-width: 150px;">ACTION</th>
                             </tr>
                         </thead>
                         <tbody class="list" style="max-height: calc(100vh - 400px); overflow-y: auto;">
@@ -7441,21 +7440,8 @@ $rand_id = 'S' . $current_year . '00' . $formatted_data;
                                     <tr>
                                         <td class="align-middle text-center ps-3 id_schedule"><?php echo $row["ID_SCHEDULE"]; ?>
                                         </td>
-                                        <td class="align-middle date"><?php echo $row["SCHEDULE_DATE"]; ?></td>
+                                        <td class="align-middle date text-center"><?php echo $row["SCHEDULE_DATE"]; ?></td>
                                         <td class="align-middle text-center technician_name"><?php echo $row["USERNAME"]; ?>
-                                        </td>
-                                        <td class="align-middle text-center white-space-nowrap text-end pe-0">
-                                            <div class="font-sans-serif btn-reveal-trigger position-static">
-                                                <button
-                                                    class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs--2"
-                                                    type="button" data-bs-toggle="dropdown" data-boundary="window"
-                                                    aria-haspopup="true" aria-expanded="false" data-bs-reference="parent">
-                                                    <span class="fas fa-ellipsis-h fs--2"></span>
-                                                </button>
-                                                <div class="dropdown-menu dropdown-menu-end py-2">
-                                                    <a class="dropdown-item" href="#!">Open Attachment</a>
-                                                </div>
-                                            </div>
                                         </td>
                                     </tr>
                                 <?php }
@@ -7587,14 +7573,40 @@ $rand_id = 'S' . $current_year . '00' . $formatted_data;
                         success: function (response) {
                             if (response.status == 'success') {
                                 $('#addModal').modal('hide');
-                                alert('Sukses');
-                                location.reload();
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Schedule successfully added',
+                                    text: 'Schedule saved successfully',
+                                    allowOutsideClick: false,
+                                    confirmButtonText: 'OK'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        // Redirect to base URL when "OK" is clicked
+                                        location.reload(); // Reload halaman
+                                    }
+                                });
+                            //     alert('Sukses');
+                            //     location.reload();
                             } else {
-                                alert(response.message);
+                                Swal.fire({
+                                        icon: 'error',
+                                        title: 'Incomplete Data',
+                                        text: 'All fields are required',
+                                        allowOutsideClick: false,
+                                        confirmButtonText: 'OK'
+                                    })
+                                // alert(response.message);
                             }
                         },
                         error: function () {
-                            alert('Error adding schedule');
+                            Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error adding schedule',
+                                        text: 'Schedule failed to be saved',
+                                        allowOutsideClick: false,
+                                        confirmButtonText: 'OK'
+                                    })
+                            // alert('Error adding schedule');
                         }
                     });
                 });

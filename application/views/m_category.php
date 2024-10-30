@@ -66,6 +66,7 @@ $rand_id = 'C' . $current_year . '00' . $formatted_data;
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         var phoenixIsRTL = window.config.config.phoenixIsRTL;
         if (phoenixIsRTL) {
@@ -234,7 +235,7 @@ $rand_id = 'C' . $current_year . '00' . $formatted_data;
                     <div class="d-flex align-items-center">
                         <div class="d-flex align-items-center"><img src="<?= base_url('assets/'); ?>img/icons/logo.png"
                                 alt="phoenix" width="27">
-                            <p class="logo-text ms-2 d-none d-sm-block">phoenix</p>
+                            <p class="logo-text ms-2 d-none d-sm-block">UBS</p>
                         </div>
                     </div>
                 </a>
@@ -7364,9 +7365,12 @@ $rand_id = 'C' . $current_year . '00' . $formatted_data;
                                                     aria-haspopup="true" aria-expanded="false" data-bs-reference="parent">
                                                     <span class="fas fa-ellipsis-h fs--2"></span>
                                                 </button>
-                                                <div class="dropdown-menu dropdown-menu-end py-2">
-                                                    <a class="dropdown-item" href="#!">Edit Category</a>
-                                                    <a class="dropdown-item text-warning" href="#!">Delete Category</a>
+                                                <div class="dropdown-menu dropdown-menu-end py-2 edit-btn">
+                                                    <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#editModal"
+                                                        data-id="<?php echo $row["ID"]; ?>"
+                                                        data-category="<?php echo $row["CATEGORY"]; ?>">Edit Category</a>
+                                                    <a class="dropdown-item text-warning delete-category"
+                                                        data-id="<?php echo $row["ID"]; ?>">Delete Category</a>
                                                 </div>
                                             </div>
                                         </td>
@@ -7426,6 +7430,33 @@ $rand_id = 'C' . $current_year . '00' . $formatted_data;
                 </div>
             </div>
         </div>
+        <!-- Modal Edit -->
+        <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="addCategoryLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="verticallyCenteredModalLabel">Edit Category</h5><button
+                            class="btn p-1" type="button" data-bs-dismiss="modal" aria-label="Close"><span
+                                class="fas fa-times fs--1"></span></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editForm">
+                            <div class="mb-3">
+                                <label for="editCategoryName" class="form-label">Category Name:</label>
+                                <div>
+                                    <input type="text" id="editCategoryName" class="form-control w-100">
+                                </div>
+                            </div>
+                            <input type="hidden" id="editCategoryId">
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-outline-primary" type="button" data-bs-dismiss="modal">Cancel</button>
+                        <button class="btn btn-primary" type="button" id="edit">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <script src="<?= base_url('vendors/'); ?>popper/popper.min.js"></script>
         <script src="<?= base_url('vendors/'); ?>bootstrap/bootstrap.min.js"></script>
         <script src="<?= base_url('vendors/'); ?>anchorjs/anchor.min.js"></script>
@@ -7468,20 +7499,49 @@ $rand_id = 'C' . $current_year . '00' . $formatted_data;
                         success: function (response) {
                             if (response.status == 'success') {
                                 $('#addModal').modal('hide');
-                                location.reload();
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Complete Data',
+                                    text: 'Data saved successfully',
+                                    allowOutsideClick: false,
+                                    confirmButtonText: 'OK'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        // Redirect to base URL when "OK" is clicked
+                                        location.reload(); // Reload halaman
+                                    }
+                                });
+
+                                // location.reload();
                             } else {
-                                alert(response.message);
+                                Swal.fire({
+                                        icon: 'error',
+                                        title: 'Incomplete Data',
+                                        text: 'All fields are required',
+                                        allowOutsideClick: false,
+                                        confirmButtonText: 'OK'
+                                    })
+
+                                // alert(response.message);
                             }
                         },
                         error: function () {
-                            alert('Error updating role');
+                            Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error adding category',
+                                        text: 'Data failed to be saved',
+                                        allowOutsideClick: false,
+                                        confirmButtonText: 'OK'
+                                    })
+
+                            // alert('Error updating role');
                         }
                     });
                 });
 
-                $(document).on('click', '#delete', function () {
-                    // Ambil ID kategori dari baris yang dipilih
-                    var categoryId = $(this).closest('tr').find('td:first').text();
+                $(document).on('click', '.delete-category', function () {
+                    // Ambil ID kategori dari atribut data-id
+                    var categoryId = $(this).data('id');
 
                     // Tampilkan konfirmasi sebelum menghapus
                     if (confirm('Are you sure you want to delete this category?')) {
@@ -7494,21 +7554,49 @@ $rand_id = 'C' . $current_year . '00' . $formatted_data;
                             },
                             dataType: 'json', // Format data yang diterima kembali dari server
                             success: function (response) {
-                                if (response.status == 'success') {
-                                    alert('Category deleted successfully');
-                                    location.reload(); // Reload halaman setelah delete berhasil
+                                if (response.status === 'success') {
+                                    // alert('Category deleted successfully');
+                                    // location.reload(); // Reload halaman setelah delete berhasil
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Category deleted successfully',
+                                        text: 'Data has been deleted',
+                                        allowOutsideClick: false,
+                                        confirmButtonText: 'OK'
+                                    }).then((result) => {
+                                        if (result.isConfirmed) {
+                                            // Redirect to base URL when "OK" is clicked
+                                            location.reload(); // Reload halaman
+                                        }
+                                    });
                                 } else {
-                                    alert(response.message);
+                                    // alert(response.message);
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error deleting category',
+                                        text: 'Data failed to be deleted',
+                                        allowOutsideClick: false,
+                                        confirmButtonText: 'OK'
+                                    })
+
                                 }
                             },
                             error: function () {
-                                alert('Error deleting category');
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error deleting category',
+                                    text: 'Data failed to be deleted',
+                                    allowOutsideClick: false,
+                                    confirmButtonText: 'OK'
+                                })
+
+                                // alert('Error deleting category');
                             }
                         });
                     }
                 });
 
-                $('.edit-btn').on('click', function () {
+                $(document).on('click', '.edit-btn .dropdown-item', function () {
                     // Ambil ID dan nama kategori dari atribut data
                     var categoryId = $(this).data('id');
                     var categoryName = $(this).data('category');
@@ -7522,8 +7610,6 @@ $rand_id = 'C' . $current_year . '00' . $formatted_data;
                     // Ambil data dari modal
                     var categoryId = $('#editCategoryId').val();
                     var categoryName = $('#editCategoryName').val();
-                    console.log('categoryId:', categoryId);
-                    console.log('categoryName:', categoryName);
 
                     // Kirim data dengan AJAX ke controller untuk diupdate
                     $.ajax({
@@ -7537,13 +7623,41 @@ $rand_id = 'C' . $current_year . '00' . $formatted_data;
                         success: function (response) {
                             if (response.status == 'success') {
                                 $('#editModal').modal('hide');
-                                location.reload();
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Successfully changed category',
+                                    text: 'Category has been edited',
+                                    allowOutsideClick: false,
+                                    confirmButtonText: 'OK'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        // Redirect to base URL when "OK" is clicked
+                                        location.reload(); // Reload halaman
+                                    }
+                                });
+                                // location.reload();
                             } else {
-                                alert(response.message);
+                                Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error editing category',
+                                        text: 'Data failed to be edited',
+                                        allowOutsideClick: false,
+                                        confirmButtonText: 'OK'
+                                    })
+
+                                // alert(response.message);
                             }
                         },
                         error: function () {
-                            alert('Error updating role');
+                            Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error editing category',
+                                    text: 'Data failed to be edited',
+                                    allowOutsideClick: false,
+                                    confirmButtonText: 'OK'
+                                })
+
+                            // alert('Error updating role');
                         }
                     });
                 });
