@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Access Denied</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="icon" type="image/png" sizes="32x32" href="<?= base_url('assets/'); ?>images/ubs1.1.png">
 </head>
 <body>
     <script>

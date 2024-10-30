@@ -32,9 +32,9 @@ $rand_id = 'S' . $current_year . '00' . $formatted_data;
     <!--    Favicons-->
     <!-- ===============================================-->
     <link rel="apple-touch-icon" sizes="180x180" href="<?= base_url('assets/'); ?>img/favicons/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="<?= base_url('assets/'); ?>img/favicons/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="<?= base_url('assets/'); ?>img/favicons/favicon-16x16.png">
-    <link rel="shortcut icon" type="image/x-icon" href="<?= base_url('assets/'); ?>img/favicons/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="<?= base_url('assets/'); ?>images/ubs1.1.png">
+    <!-- <link rel="icon" type="image/png" sizes="16x16" href="<?= base_url('assets/'); ?>images/ubsaja.png"> -->
+    <!-- <link rel="shortcut icon" type="image/x-icon" href="<?= base_url('assets/'); ?>imamges/ubsaja.ico"> -->
     <link rel="manifest" href="<?= base_url('assets/'); ?>img/favicons/manifest.json">
     <meta name="msapplication-TileImage" content="<?= base_url('assets/'); ?>img/favicons/mstile-150x150.png">
     <meta name="theme-color" content="#ffffff">
@@ -301,9 +301,9 @@ $rand_id = 'S' . $current_year . '00' . $formatted_data;
                         class="navbar-toggle-icon"><span class="toggle-line"></span></span></button>
                 <a class="navbar-brand me-1 me-sm-3" href="../../index.html">
                     <div class="d-flex align-items-center">
-                        <div class="d-flex align-items-center"><img src="<?= base_url('assets/'); ?>img/icons/logo.png"
-                                alt="phoenix" width="27">
-                            <p class="logo-text ms-2 d-none d-sm-block">UBS</p>
+                        <div class="d-flex align-items-center"><img src="<?= base_url('assets/'); ?>images/ubs.png"
+                                alt="phoenix" width="150">
+                            <!-- <p class="logo-text ms-2 d-none d-sm-block">UBS</p> -->
                         </div>
                     </div>
                 </a>
