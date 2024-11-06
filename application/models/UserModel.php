@@ -13,7 +13,23 @@ class UserModel extends CI_Model
         $this->db->where('ID_USER', $userId);
         return $this->db->update('M_USER', $data);
     }
-
+    
+    public function get_filtered_data($category, $status) {
+        $this->db->select('*');
+        $this->db->from('M_TICKET'); // Ganti 'nama_tabel' dengan nama tabel Anda
+    
+        // Tambahkan kondisi filter
+        if (!empty($category)) {
+            $this->db->where('CATEGORY', $category);
+        }
+        if (!empty($status)) {
+            $this->db->where('STATUS', $status);
+        }
+    
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    
     public function add($data)
     {
         return $this->db->insert('M_CATEGORY', $data);

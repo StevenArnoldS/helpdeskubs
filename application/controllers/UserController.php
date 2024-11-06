@@ -3,7 +3,29 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 class UserController extends CI_Controller
 {
-
+    public function filter_ajax() {
+        $category = $this->input->post('category');
+        $status = $this->input->post('status');
+        
+        // Load model
+        $this->load->model('UserModel');
+    
+        // try {
+            $data = $this->UserModel->get_filtered_data($category, $status);
+            if ($data) {
+                echo json_encode($data);
+            } else {
+                echo json_encode([]);
+            }
+        // } catch (Exception $e) {
+        //     // Tampilkan error detail ke console log di browser
+        //     echo json_encode(['error' => $e->getMessage()]);
+        // }
+    }
+    
+    
+    
+    
     public function __construct()
     {
         parent::__construct();
@@ -382,72 +404,72 @@ class UserController extends CI_Controller
         echo json_encode(['status' => 'success']);
     }
 
-    public function filter_ajax()
-    {
-        $date_range = $this->input->post('date_range');
+            // public function filter_ajax()
+            // {
+            //     $date_range = $this->input->post('date_range');
 
-        if ($date_range) {
-            // Memisahkan date range menjadi start dan end date
-            $dates = explode(" to ", $date_range);
-            $start_date = date('d/M/Y', strtotime(str_replace('/', '-', $dates[0])));
-            $end_date = date('d/M/Y', strtotime(str_replace('/', '-', $dates[1]))) . ' 23:59:59';
+            //     if ($date_range) {
+            //         // Memisahkan date range menjadi start dan end date
+            //         $dates = explode(" to ", $date_range);
+            //         $start_date = date('d/M/Y', strtotime(str_replace('/', '-', $dates[0])));
+            //         $end_date = date('d/M/Y', strtotime(str_replace('/', '-', $dates[1]))) . ' 23:59:59';
 
-            // Query filter data
-            $this->db->select("ID_TICKET, PROBLEM, PHONE, TECHNICIAN, STATUS, CATEGORY, NOTE, 
-                               TO_CHAR(TICKET_DATE, 'DD Mon YYYY HH24:MI') AS TICKET_DATE, 
-                               TO_CHAR(COMPLETED_DATE, 'DD Mon YYYY HH24:MI') AS COMPLETED_DATE");
-            $this->db->from('M_TICKET');
-            $this->db->where("TICKET_DATE >= TO_DATE('$start_date', 'DD/Mon/YYYY')", NULL, FALSE);
-            $this->db->where("TICKET_DATE <= TO_DATE('$end_date', 'DD/Mon/YYYY')", NULL, FALSE);
-            $this->db->order_by("ID_TICKET");
-            $query = $this->db->get();
+            //         // Query filter data
+            //         $this->db->select("ID_TICKET, PROBLEM, PHONE, TECHNICIAN, STATUS, CATEGORY, NOTE, 
+            //                            TO_CHAR(TICKET_DATE, 'DD Mon YYYY HH24:MI') AS TICKET_DATE, 
+            //                            TO_CHAR(COMPLETED_DATE, 'DD Mon YYYY HH24:MI') AS COMPLETED_DATE");
+            //         $this->db->from('M_TICKET');
+            //         $this->db->where("TICKET_DATE >= TO_DATE('$start_date', 'DD/Mon/YYYY')", NULL, FALSE);
+            //         $this->db->where("TICKET_DATE <= TO_DATE('$end_date', 'DD/Mon/YYYY')", NULL, FALSE);
+            //         $this->db->order_by("ID_TICKET");
+            //         $query = $this->db->get();
 
-            // Jika ada data yang ditemukan
-            if ($query->num_rows() > 0) {
-                $result = $query->result_array();
-                foreach ($result as $row) {
-                    echo "<tr>
-                        <td class='align-middle text-center ps-3 id_ticket'>{$row['ID_TICKET']}</td>
-                        <td class='align-middle problem'>{$row['PROBLEM']}</td>
-                        <td class='align-middle text-center phone'>{$row['PHONE']}</td>
-                        <td class='align-middle text-center ticket_date'>{$row['TICKET_DATE']}</td>
-                        <td class='align-middle text-center technician'>{$row['TECHNICIAN']}</td>";
+            //         // Jika ada data yang ditemukan
+            //         if ($query->num_rows() > 0) {
+            //             $result = $query->result_array();
+            //             foreach ($result as $row) {
+            //                 echo "<tr>
+            //                     <td class='align-middle text-center ps-3 id_ticket'>{$row['ID_TICKET']}</td>
+            //                     <td class='align-middle problem'>{$row['PROBLEM']}</td>
+            //                     <td class='align-middle text-center phone'>{$row['PHONE']}</td>
+            //                     <td class='align-middle text-center ticket_date'>{$row['TICKET_DATE']}</td>
+            //                     <td class='align-middle text-center technician'>{$row['TECHNICIAN']}</td>";
 
-                    if ($row['STATUS'] == 'unfinished') {
-                        echo "<td class='align-middle text-center white-space-nowrap text-end status'>
-                              <span class='badge badge-phoenix fs--2 badge-phoenix-danger'>Waiting</span>
-                              </td>";
-                    } elseif ($row['STATUS'] == 'finished') {
-                        echo "<td class='align-middle text-center white-space-nowrap text-end status'>
-                              <span class='badge badge-phoenix fs--2 badge-phoenix-success'>Finished</span>
-                              </td>";
-                    } elseif ($row['STATUS'] == 'on-progress') {
-                        echo "<td class='align-middle text-center white-space-nowrap text-end status'>
-                              <span class='badge badge-phoenix fs--2 badge-phoenix-warning'>On-Progress</span>
-                              </td>";
-                    }
+            //                 if ($row['STATUS'] == 'unfinished') {
+            //                     echo "<td class='align-middle text-center white-space-nowrap text-end status'>
+            //                           <span class='badge badge-phoenix fs--2 badge-phoenix-danger'>Waiting</span>
+            //                           </td>";
+            //                 } elseif ($row['STATUS'] == 'finished') {
+            //                     echo "<td class='align-middle text-center white-space-nowrap text-end status'>
+            //                           <span class='badge badge-phoenix fs--2 badge-phoenix-success'>Finished</span>
+            //                           </td>";
+            //                 } elseif ($row['STATUS'] == 'on-progress') {
+            //                     echo "<td class='align-middle text-center white-space-nowrap text-end status'>
+            //                           <span class='badge badge-phoenix fs--2 badge-phoenix-warning'>On-Progress</span>
+            //                           </td>";
+            //                 }
 
-                    echo "<td class='align-middle text-center category'>{$row['CATEGORY']}</td>
-                        <td class='align-middle text-center completion_date'>{$row['COMPLETED_DATE']}</td>
-                        <td class='align-middle note'>{$row['NOTE']}</td>
-                        <td class='align-middle text-center white-space-nowrap text-end pe-0'>
-                            <div class='font-sans-serif btn-reveal-trigger position-static'>
-                                <button class='btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs--2'
-                                        type='button' data-bs-toggle='dropdown' data-boundary='window' aria-haspopup='true' aria-expanded='false' data-bs-reference='parent'>
-                                    <span class='fas fa-ellipsis-h fs--2'></span>
-                                </button>
-                                <div class='dropdown-menu dropdown-menu-end py-2'>
-                                    <a class='dropdown-item' href='#!'>Open Attachment</a>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>";
-                }
-            } else {
-                echo "<tr><td colspan='10' class='text-center'>No data available for the selected date range.</td></tr>";
-            }
-        }
-    }
+            //                 echo "<td class='align-middle text-center category'>{$row['CATEGORY']}</td>
+            //                     <td class='align-middle text-center completion_date'>{$row['COMPLETED_DATE']}</td>
+            //                     <td class='align-middle note'>{$row['NOTE']}</td>
+            //                     <td class='align-middle text-center white-space-nowrap text-end pe-0'>
+            //                         <div class='font-sans-serif btn-reveal-trigger position-static'>
+            //                             <button class='btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs--2'
+            //                                     type='button' data-bs-toggle='dropdown' data-boundary='window' aria-haspopup='true' aria-expanded='false' data-bs-reference='parent'>
+            //                                 <span class='fas fa-ellipsis-h fs--2'></span>
+            //                             </button>
+            //                             <div class='dropdown-menu dropdown-menu-end py-2'>
+            //                                 <a class='dropdown-item' href='#!'>Open Attachment</a>
+            //                             </div>
+            //                         </div>
+            //                     </td>
+            //                 </tr>";
+            //             }
+            //         } else {
+            //             echo "<tr><td colspan='10' class='text-center'>No data available for the selected date range.</td></tr>";
+            //         }
+            //     }
+            // }
 
     public function filter_finished()
     {

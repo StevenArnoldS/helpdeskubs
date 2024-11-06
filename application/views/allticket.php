@@ -8,32 +8,6 @@ $query = $this->db->get();
 if ($query->num_rows() > 0) {
     $result = $query->result_array();
 }
-// $nik = $this->session->userdata('user_id');
-// if ($nik) {
-//     // Get the ID_USER based on NIK from M_USER table
-//     $this->db->select('ID_USER');
-//     $this->db->from('M_USER');
-//     $this->db->where('NIK', $nik);
-//     $user_query = $this->db->get();
-//     $user_result = $user_query->row_array();
-
-//     if (!empty($user_result)) {
-//         $id_user = $user_result['ID_USER'];
-
-//         // Fetch tickets for this user with status 'unfinished' and 'on-progress'
-//         $this->db->select("ID_TICKET, PROBLEM, PHONE, TO_CHAR(TICKET_DATE, 'DD Mon YYYY HH24:MI') AS TICKET_DATE, CATEGORY, STATUS");
-//         $this->db->from('M_TICKET');
-//         $this->db->where('TECHNICIAN', $id_user); // Filter by ID_USER
-//         $this->db->where_in('STATUS', ['unfinished', 'on-progress']); // Filter by multiple statuses
-//         $this->db->order_by('ID_TICKET');
-//         $query = $this->db->get();
-//         $result = $query->result_array();
-
-//         // Fetch categories for the dropdown
-        $category_query = $this->db->order_by('ID')->get('M_CATEGORY');
-        $categories = $category_query->result_array();
-//     }
-// }
 $category_query = $this->db->query("SELECT * FROM M_CATEGORY");
 $categories = $category_query->result_array();
 ?>
@@ -84,6 +58,7 @@ $categories = $category_query->result_array();
     <link href="<?= base_url('vendors/'); ?>flatpickr/flatpickr.min.css" rel="stylesheet" />
     <script src="<?= base_url('assets/'); ?>js/flatpickr.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="main.js"></script>
     <script>
         var phoenixIsRTL = window.config.config.phoenixIsRTL;
         if (phoenixIsRTL) {
@@ -7429,27 +7404,24 @@ $categories = $category_query->result_array();
                     </div>
                     <div class="scrollbar overflow-hidden-y">
                         <div class="btn-group position-static" role="group">
-                            <!-- <div class="btn-group position-static text-nowrap"><button class="btn btn-phoenix-secondary px-7 flex-shrink-0" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"> Category<span class="fas fa-angle-down ms-2"></span></button>
-                            <ul class="dropdown-menu"> -->
-                            <select class="form-select position-static text-nowrap">
-                                <option value="" disabled selected>Category</option> <!-- Opsi default -->
-                                                <?php foreach ($categories as $category) { ?>
-                                                    <option value="Category">
-                                                        <?php echo $category['CATEGORY']; ?>
-                                                    </option>
-                                                <?php } ?>
-                                            </select>
-                            <!-- </div> -->
-                            <!-- <div class="btn-group position-static text-nowrap"><button class="btn btn-sm btn-phoenix-secondary px-7 flex-shrink-0" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"> Status<span class="fas fa-angle-down ms-2"></span></button>
-                            <ul class="dropdown-menu"> -->
-                                <select class="form-select  position-static text-nowrap">
-                                    <option value="" disabled selected>Status</option>
-                                        <option><a class="dropdown-item" href="#">Finished</a></option>
-                                        <option><a class="dropdown-item" href="#">Waiting</a></option>
-                                        <option><a class="dropdown-item" href="#">On-Progress</a></option>
-                                </select>
-                            <!-- </ul> -->
-                            <!-- </div> -->
+                            <!-- filter category -->
+                            <select class="form-select position-static text-nowrap" id="categoryFilter" name="category" onchange="applyFilter()">
+                                <option value="">Category</option>
+                                <?php foreach ($categories as $category) { ?>
+                                    <option value="<?php echo $category['ID']; ?>">
+                                        <?php echo $category['CATEGORY']; ?>
+                                    </option>
+                                <?php } ?>
+                            </select>
+                            
+                                            
+                            <!-- filter status -->
+                            <select class="form-select position-static text-nowrap" id="statusFilter" onchange="applyFilter()" style="margin-left: 5px;">
+                                <option value="">Status</option>
+                                <option value="finished">Finished</option>
+                                <option value="unfinished">Waiting</option>
+                                <option value="on-progress">On-Progress</option>
+                            </select>
                         </div>
                     </div>
                     <!-- Search Box -->
@@ -7464,7 +7436,7 @@ $categories = $category_query->result_array();
                 <div id="ticket_results"></div>
 
                 <div class="table-responsive">
-                    <table class="table table-striped table-sm fs--1 mb-0" style="width: 100vw;">
+                    <table class="table table-striped table-sm fs--1 mb-0" id="ticketTable" style="width: 100vw;">
                         <thead>
                             <tr>
                                 <th class="sort border-top text-center ps-3" data-sort="id" style="min-width: 125px;">Id
@@ -7490,7 +7462,7 @@ $categories = $category_query->result_array();
                             </tr>
                         </thead>
                         <tbody class="list" style="max-height: calc(100vh - 400px); overflow-y: auto;">
-                            <?php if ($query->num_rows() > 0) {
+                            <?php if ($query->num_rows() > 0)  {
                                 foreach ($result as $row) { ?>
                                     <tr>
                                         <td class="align-middle text-center ps-3 id_ticket"><?php echo $row["ID_TICKET"]; ?>
@@ -7499,18 +7471,18 @@ $categories = $category_query->result_array();
                                         <td class="align-middle text-center phone"><?php echo $row["PHONE"]; ?></td>
                                         <td class="align-middle text-center ticket_date"><?php echo $row["TICKET_DATE"]; ?></td>
                                         <td class="align-middle text-center technician"><?php echo $row["TECHNICIAN"]; ?></td>
-                                        <?php if ($row["STATUS"] == 'unfinished') {
-                                            echo '<td class="align-middle text-center white-space-nowrap text-end status">
-              <span class="badge badge-phoenix fs--2 badge-phoenix-danger">Waiting</span>
-          </td>';
-                                        } elseif ($row["STATUS"] == 'finished') {
-                                            echo '<td class="align-middle text-center white-space-nowrap text-end status">
-              <span class="badge badge-phoenix fs--2 badge-phoenix-success">Finished</span>
-          </td>';
-                                        } elseif ($row["STATUS"] == 'on-progress') {
-                                            echo '<td class="align-middle text-center white-space-nowrap text-end status">
-              <span class="badge badge-phoenix fs--2 badge-phoenix-warning">On-Progress</span>
-          </td>';
+                                        <?php if ($row["STATUS"] == "unfinished") {
+                                            echo "<td class='align-middle text-center white-space-nowrap text-end status'>
+              <span class='badge badge-phoenix fs--2 badge-phoenix-danger'>Waiting</span>
+          </td>";
+                                        } elseif ($row["STATUS"] == "finished") {
+                                            echo "<td class='align-middle text-center white-space-nowrap text-end status'>
+              <span class='badge badge-phoenix fs--2 badge-phoenix-success'>Finished</span>
+          </td>";
+                                        } elseif ($row["STATUS"] == "on-progress") {
+                                            echo "<td class='align-middle text-center white-space-nowrap text-end status'>
+              <span class='badge badge-phoenix fs--2 badge-phoenix-warning'>On-Progress</span>
+          </td>";
                                         } ?>
                                         <td class="align-middle text-center category"><?php echo $row["CATEGORY"]; ?></td>
                                         <td class="align-middle text-center completion_date">
@@ -7528,7 +7500,7 @@ $categories = $category_query->result_array();
                                                 <div class="dropdown-menu dropdown-menu-end py-2">
                                                     <?php if (!empty($row["ATTACHMENT"])) { ?>
                                                         <a class="dropdown-item"
-                                                            href="<?php echo base_url('uploads/' . $row["ATTACHMENT"]); ?>"
+                                                            href="<?php echo base_url("uploads/" . $row["ATTACHMENT"]); ?>"
                                                             download>Download Attachment</a>
                                                     <?php } else { ?>
                                                         <a class="dropdown-item disabled" href="#">No Attachment</a>
@@ -7536,7 +7508,7 @@ $categories = $category_query->result_array();
                                                 </div>
                                             </div>
                                         </td>
-                                    </tr>
+                                    </tr>                                    
                                 <?php }
                             } else { ?>
                                 <tr>
@@ -7660,6 +7632,74 @@ $categories = $category_query->result_array();
             filterContent.style.display = "none";
         }
     });
+
+    function applyFilter() {
+    var category = $('#categoryFilter').val();
+    var status = $('#statusFilter').val();
+    // console.log(status);
+    // return;
+
+    $.ajax({
+        url: "<?= base_url('index.php/UserController/filter_ajax'); ?>", // URL endpoint AJAX
+        type: "POST",
+        data: {
+            category: category,
+            status: status
+        },
+        dataType: "json",
+        success: function(response) {
+            console.log(response);
+            // Kosongkan tabel sebelum mengisinya dengan data baru
+            $('#ticketTable tbody').empty();
+
+            // // Loop melalui data respons dan tambahkan baris ke tabel
+            response.forEach(function(ticket) {
+                var statusBadge = "";
+                if (ticket.STATUS === "unfinished") {
+                    statusBadge = "<span class='badge badge-phoenix fs--2 badge-phoenix-danger'>Waiting</span>";
+                } else if (ticket.STATUS === "finished") {
+                    statusBadge = "<span class='badge badge-phoenix fs--2 badge-phoenix-success'>Finished</span>";
+                } else if (ticket.STATUS === "on-progress") {
+                    statusBadge = "<span class='badge badge-phoenix fs--2 badge-phoenix-warning'>On-Progress</span>";
+                }
+                // Buat baris tabel
+                var row = `<tr>
+                    <td class="align-middle text-center ps-3 id_ticket">${ticket.ID_TICKET}</td>
+                    <td class="align-middle problem">${ticket.PROBLEM}</td>
+                    <td class="align-middle text-center phone">${ticket.PHONE}</td>
+                    <td class="align-middle text-center ticket_date">${ticket.TICKET_DATE}</td>
+                    <td class="align-middle text-center technician">${ticket.TECHNICIAN}</td>
+                    <td class="align-middle text-center white-space-nowrap text-end status">${statusBadge}</td>
+                    <td class="align-middle text-center category">${ticket.CATEGORY}</td>
+                    <td class="align-middle text-center completion_date">${ticket.COMPLETED_DATE || '-'}</td>
+                    <td class="align-middle note">${ticket.NOTE}</td>
+                    <td class="align-middle text-center white-space-nowrap text-end pe-0">
+                        <div class="font-sans-serif btn-reveal-trigger position-static">
+                            <button
+                                class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs--2"
+                                type="button" data-bs-toggle="dropdown" data-boundary="window"
+                                aria-haspopup="true" aria-expanded="false" data-bs-reference="parent">
+                                <span class="fas fa-ellipsis-h fs--2"></span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end py-2">
+                                ${ticket.ATTACHMENT ? `<a class="dropdown-item" href="<?= base_url("uploads/"); ?>${ticket.ATTACHMENT}" download>Download Attachment</a>` : `<a class="dropdown-item disabled" href="#">No Attachment</a>`}
+                            </div>
+                        </div>
+                    </td>
+                </tr>`;
+                
+                // Tambahkan baris ke tabel
+                $('#ticketTable tbody').append(row);
+            });
+        },
+        error: function(xhr, status, error) {
+            console.error(xhr.responseText); // Menampilkan pesan error di konsol
+            alert("Terjadi kesalahan saat memuat data. Silakan coba lagi.");
+        }
+    });
+}
+
+
         </script>
 </body>
 
