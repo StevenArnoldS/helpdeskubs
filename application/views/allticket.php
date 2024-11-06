@@ -7636,8 +7636,6 @@ $categories = $category_query->result_array();
     function applyFilter() {
     var category = $('#categoryFilter').val();
     var status = $('#statusFilter').val();
-    // console.log(status);
-    // return;
 
     $.ajax({
         url: "<?= base_url('index.php/UserController/filter_ajax'); ?>", // URL endpoint AJAX
@@ -7649,55 +7647,52 @@ $categories = $category_query->result_array();
         dataType: "json",
         success: function(response) {
             console.log(response);
-            // Kosongkan tabel sebelum mengisinya dengan data baru
             $('#ticketTable tbody').empty();
 
-            // // Loop melalui data respons dan tambahkan baris ke tabel
             response.forEach(function(ticket) {
-                var statusBadge = "";
-                if (ticket.STATUS === "unfinished") {
-                    statusBadge = "<span class='badge badge-phoenix fs--2 badge-phoenix-danger'>Waiting</span>";
-                } else if (ticket.STATUS === "finished") {
-                    statusBadge = "<span class='badge badge-phoenix fs--2 badge-phoenix-success'>Finished</span>";
-                } else if (ticket.STATUS === "on-progress") {
-                    statusBadge = "<span class='badge badge-phoenix fs--2 badge-phoenix-warning'>On-Progress</span>";
+                // Fungsi untuk mengosongkan nilai 'null' atau '-'
+                function formatValue(value) {
+                    return (value === null || value === '-') ? '' : value;
                 }
-                // Buat baris tabel
+
                 var row = `<tr>
-                    <td class="align-middle text-center ps-3 id_ticket">${ticket.ID_TICKET}</td>
-                    <td class="align-middle problem">${ticket.PROBLEM}</td>
-                    <td class="align-middle text-center phone">${ticket.PHONE}</td>
-                    <td class="align-middle text-center ticket_date">${ticket.TICKET_DATE}</td>
-                    <td class="align-middle text-center technician">${ticket.TECHNICIAN}</td>
-                    <td class="align-middle text-center white-space-nowrap text-end status">${statusBadge}</td>
-                    <td class="align-middle text-center category">${ticket.CATEGORY}</td>
-                    <td class="align-middle text-center completion_date">${ticket.COMPLETED_DATE || '-'}</td>
-                    <td class="align-middle note">${ticket.NOTE}</td>
+                    <td class="align-middle text-center ps-3 id_ticket">${formatValue(ticket.ID_TICKET)}</td>
+                    <td class="align-middle problem">${formatValue(ticket.PROBLEM)}</td>
+                    <td class="align-middle text-center phone">${formatValue(ticket.PHONE)}</td>
+                    <td class="align-middle text-center ticket_date">${formatValue(ticket.TICKET_DATE)}</td>
+                    <td class="align-middle text-center technician">${formatValue(ticket.TECHNICIAN)}</td>
+                    <td class="align-middle text-center status">
+                        ${ticket.STATUS === "unfinished" ? "<span class='badge badge-phoenix fs--2 badge-phoenix-danger'>Waiting</span>" : 
+                          ticket.STATUS === "finished" ? "<span class='badge badge-phoenix fs--2 badge-phoenix-success'>Finished</span>" : 
+                          ticket.STATUS === "on-progress" ? "<span class='badge badge-phoenix fs--2 badge-phoenix-warning'>On-Progress</span>" : ""}
+                    </td>
+                    <td class="align-middle text-center category">${formatValue(ticket.CATEGORY)}</td>
+                    <td class="align-middle text-center completion_date">${formatValue(ticket.COMPLETED_DATE)}</td>
+                    <td class="align-middle note">${formatValue(ticket.NOTE)}</td>
                     <td class="align-middle text-center white-space-nowrap text-end pe-0">
                         <div class="font-sans-serif btn-reveal-trigger position-static">
-                            <button
-                                class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs--2"
-                                type="button" data-bs-toggle="dropdown" data-boundary="window"
-                                aria-haspopup="true" aria-expanded="false" data-bs-reference="parent">
+                            <button class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs--2"
+                                    type="button" data-bs-toggle="dropdown" data-boundary="window"
+                                    aria-haspopup="true" aria-expanded="false" data-bs-reference="parent">
                                 <span class="fas fa-ellipsis-h fs--2"></span>
                             </button>
                             <div class="dropdown-menu dropdown-menu-end py-2">
-                                ${ticket.ATTACHMENT ? `<a class="dropdown-item" href="<?= base_url("uploads/"); ?>${ticket.ATTACHMENT}" download>Download Attachment</a>` : `<a class="dropdown-item disabled" href="#">No Attachment</a>`}
+                                ${ticket.ATTACHMENT ? `<a class="dropdown-item" href="<?= base_url('uploads/') ?>${ticket.ATTACHMENT}" download>Download Attachment</a>` : `<a class="dropdown-item disabled" href="#">No Attachment</a>`}
                             </div>
                         </div>
                     </td>
                 </tr>`;
-                
-                // Tambahkan baris ke tabel
+
                 $('#ticketTable tbody').append(row);
             });
         },
         error: function(xhr, status, error) {
-            console.error(xhr.responseText); // Menampilkan pesan error di konsol
+            console.error(xhr.responseText);
             alert("Terjadi kesalahan saat memuat data. Silakan coba lagi.");
         }
     });
 }
+
 
 
         </script>
